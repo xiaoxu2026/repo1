@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Health Monitor</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 40px;
+        }
+
+        table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        .healthy {
+            color: green;
+            font-weight: bold;
+        }
+
+        .unhealthy {
+            color: red;
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body>
+    <h2>Notepad API Health Monitoring</h2>
+    <p>Automatically updates every 10 seconds</p>
+
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Check Time</th>
+                <th>Status</th>
+                <th>HTTP Code</th>
+            </tr>
+        </thead>
+
+        <tbody id="history-table"></tbody>
+    </table>
+
+    <script>
+        async function loadHistory() {
+            try {
+                // Call Health Monitor JSON API
+                const response = await fetch("/api");
+
+                if (!response.ok) {
+                    throw new Error("Failed to load history");
+                }
+
+                const data = await response.json();
+                const table = document.getElementById("history-table");
+
+                // Clear existing rows
+                table.innerHTML = "";
+
+                // Add updated monitoring records
+                data.history.forEach(record => {
+                    const row = document.createElement("tr");
+
+                    const values = [
+                        record.id,
+                        record.check_time,
+                        record.status,
+                        record.http_code ?? "N/A"
+                    ];
+
+                    values.forEach((value, index) => {
+                        const cell = document.createElement("td");
+                        cell.textContent = value;
+
+                        if (index === 2) {
+                            cell.className =
+                                record.status === "HEALTHY"
+                                    ? "healthy"
+                                    : "unhealthy";
+                        }
+
+                        row.appendChild(cell);
+                    });
+
+                    table.appendChild(row);
+                });
+
+            } catch (error) {
+                console.error("Error loading history:", error);
+            }
+        }
+
+        // Load immediately when page opens
+        loadHistory();
+
+        // Refresh data every 5 seconds
+        setInterval(loadHistory, 10000);
+    </script>
+</body>
+</html>
