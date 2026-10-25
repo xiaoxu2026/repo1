@@ -13,6 +13,7 @@ API_URL = "http://127.0.0.1:5000/api"
 CHECK_INTERVAL = 10
 TIMEOUT = 5
 DB_NAME = "health.db"
+MAX_RECORDS = 100
 
 
 # Initialize database
@@ -55,6 +56,16 @@ def check_api():
             (check_time, status, http_code)
             VALUES (?, ?, ?)
         """, (check_time, status, http_code))
+        # Keep only the latest 100 records
+        db.execute("""
+            DELETE FROM health_checks
+            WHERE id NOT IN (
+                SELECT id
+                FROM health_checks
+                ORDER BY id DESC
+                LIMIT ?
+            )
+        """, (MAX_RECORDS,))
 
     print(f"{check_time} | {status} | HTTP: {http_code}")
 
