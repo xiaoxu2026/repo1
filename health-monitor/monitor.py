@@ -49,7 +49,7 @@ def check_api():
         status = "UNHEALTHY"
         http_code = None
 
-    # Save result to database
+    # Save result to the database
     with sqlite3.connect(DB_NAME) as db:
         db.execute("""
             INSERT INTO health_checks
