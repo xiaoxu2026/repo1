@@ -58,7 +58,7 @@
         async function loadHistory() {
             try {
                 // Call Health Monitor JSON API
-                const response = await fetch("/api");
+                const response = await fetch("/api/history");
 
                 if (!response.ok) {
                     throw new Error("Failed to load history");
@@ -106,7 +106,7 @@
         // Load immediately when page opens
         loadHistory();
 
-        // Refresh data every 5 seconds
+        // Refresh data every 10 seconds
         setInterval(loadHistory, 10000);
     </script>
 </body>
