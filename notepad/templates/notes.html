@@ -1,0 +1,24 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Saved Notes</title>
+</head>
+<body>
+    <h1>Saved Notes</h1>
+
+    <a href="/home">Back to Notepad</a>
+
+    <ul>
+        {% for note in notes %}
+            <li>
+                <strong>Note {{ note["id"] }}</strong>:
+                {{ note["content"] }}
+                ({{ note["created_at"] }})
+            </li>
+        {% else %}
+            <li>No notes saved yet.</li>
+        {% endfor %}
+    </ul>
+</body>
+</html>
