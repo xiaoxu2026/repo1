@@ -14,7 +14,7 @@ CHECK_INTERVAL = 10
 TIMEOUT = 5
 DB_NAME = "health.db"
 MAX_RECORDS = 100
-
+RANDOM_API_URL = "http://127.0.0.1:5002/"
 
 # Initialize database
 def init_db():
@@ -49,7 +49,7 @@ def check_api():
         status = "UNHEALTHY"
         http_code = None
 
-    # Save result to database
+    # Save result to the database
     with sqlite3.connect(DB_NAME) as db:
         db.execute("""
             INSERT INTO health_checks
@@ -86,7 +86,7 @@ def index():
 def history_page():
     return render_template("history.html")
 
-@app.get("/api")
+@app.get("/api/history")
 def get_history_data():
     with sqlite3.connect(DB_NAME) as db:
         db.row_factory = sqlite3.Row
@@ -101,6 +101,44 @@ def get_history_data():
         "history": [dict(row) for row in rows]
     }), 200
 
+@app.get("/api/status")
+def get_status():
+    try:
+        response = requests.get(API_URL, timeout=TIMEOUT)
+
+        return (
+            response.content,
+            response.status_code,
+            {"Content-Type": response.headers.get(
+                "Content-Type", "application/octet-stream"
+            )}
+        )
+
+    except requests.RequestException:
+        return jsonify({
+            "error": "Notepad API is unreachable"
+        }), 503
+
+@app.get("/num")
+def get_numbers():
+    try:
+        response = requests.get(RANDOM_API_URL, timeout=TIMEOUT)
+        response.raise_for_status()
+
+        data = response.json()
+
+        num1 = data["number1"]
+        num2 = data["number2"]
+        total = num1 + num2
+
+        return f"Got two numbers, {num1} and {num2}, the total is {total}", 200
+
+    except requests.RequestException:
+        return jsonify({"error": "Random Number API unavailable"}), 503
+
+    except (ValueError, KeyError, TypeError):
+        return jsonify({"error": "Invalid response from Random Number API"}), 502
+    
 
 if __name__ == "__main__":
     init_db()
@@ -116,6 +154,5 @@ if __name__ == "__main__":
     app.run(
     host="127.0.0.1",
     port=5001,
-    debug=True,
-    use_reloader=False
+    debug=True
     )
