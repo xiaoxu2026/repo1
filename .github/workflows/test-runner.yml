@@ -1,0 +1,15 @@
+name: Test ARC Runner
+
+'on':
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: arc-runner-set
+
+    steps:
+      - name: Run test
+        run: |
+          echo "Running on self-hosted Kubernetes runner"
+          hostname
+          uname -a
